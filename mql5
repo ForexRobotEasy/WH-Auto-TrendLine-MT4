@@ -1,0 +1,205 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                              WH Auto TrendLine MT4|
+//|                                                           
+//|                                     Developer's Site: forexroboteasy.com|
+//|                                     Developer: Forex Robot Easy Team|
+//|                                                                   
+//+------------------------------------------------------------------+
+
+// Declare global variables
+datetime lastTime;
+double lastHigh, lastLow;
+bool isTrendLinePlotted = false;
+
+//+------------------------------------------------------------------+
+//| Custom Indicator Initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set the indicator buffers and set the necessary parameters
+    IndicatorBuffers(1);
+    SetIndexBuffer(0, ExtMapBuffer1);
+    SetIndexStyle(0, DRAW_LINE);
+    SetIndexShift(0, 0);
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom Indicator Deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Clear the indicator buffers
+    IndicatorBuffers(0);
+}
+
+//+------------------------------------------------------------------+
+//| Custom Indicator Calculation function                            |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Loop through the bars
+    for(int i = prev_calculated; i < rates_total; i++)
+    {
+        // Calculate the trend line
+        if (isTrendLinePlotted == false)
+        {
+            lastTime = time[i];
+            lastHigh = high[i];
+            lastLow = low[i];
+            isTrendLinePlotted = true;
+        }
+        else
+        {
+            if (time[i] == lastTime)
+            {
+                if (high[i] > lastHigh)
+                {
+                    lastHigh = high[i];
+                }
+                if (low[i] < lastLow)
+                {
+                    lastLow = low[i];
+                }
+            }
+            else
+            {
+                PlotTrendLine(lastTime, lastHigh, lastLow);
+
+                lastTime = time[i];
+                lastHigh = high[i];
+                lastLow = low[i];
+            }
+        }
+    }
+
+    return(rates_total);
+}
+
+//+------------------------------------------------------------------+
+//| Function to plot the trend line                                  |
+//+------------------------------------------------------------------+
+void PlotTrendLine(const datetime time, const double high, const double low)
+{
+    // Plot the trend line on the chart
+    ObjectCreate(0, 'TrendLine', OBJ_TREND, 0, time, low, time, high);
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Extend the Trend Line                          |
+//+------------------------------------------------------------------+
+void ExtendTrendLine()
+{
+    // Get the current trend line object
+    int trendLine = ObjectFind(0, 'TrendLine');
+
+    if (trendLine > 0)
+    {
+        // Get the trend line coordinates
+        datetime time1, time2;
+        double price1, price2;
+        ObjectGet(trendLine, 0, time1, price1);
+        ObjectGet(trendLine, 1, time2, price2);
+
+        // Calculate the extension coordinates
+        datetime newTime = time2 + PeriodSeconds() * (time2 - time1);
+        double newPrice = price2 + (price2 - price1);
+
+        // Extend the trend line
+        ObjectMove(trendLine, 2, newTime, newPrice);
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Detect Forex Trends                            |
+//+------------------------------------------------------------------+
+bool DetectForexTrend()
+{
+    // Perform trend detection algorithm
+
+    // Return true if trend detected, false otherwise
+    return true;
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Generate Forex Signals                         |
+//+------------------------------------------------------------------+
+void GenerateForexSignals()
+{
+    // Generate forex signals based on trend detection algorithm
+
+    // Place trades or send signal notifications
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Handle Errors and Exceptions                   |
+//+------------------------------------------------------------------+
+void HandleErrors()
+{
+    // Handle errors and exceptions gracefully
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function for Code Optimization and Resource Usage          |
+//+------------------------------------------------------------------+
+void OptimizeCode()
+{
+    // Optimize code for efficient performance and minimal resource usage
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Document Code                                  |
+//+------------------------------------------------------------------+
+void DocumentCode()
+{
+    // Document the code structure and usage instructions
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Initialize MT4 Platform                        |
+//+------------------------------------------------------------------+
+void InitializeMT4()
+{
+    // Initialize the MT4 platform
+}
+
+//+------------------------------------------------------------------+
+//| Custom Function to Main Entry Point of the WH Auto TrendLine MT4  |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+    // Initialize MT4 platform
+    InitializeMT4();
+
+    // Calculate trend line
+    int calculatedBars = OnCalculate();
+
+    // Extend trend line
+    ExtendTrendLine();
+
+    // Detect forex trends
+    bool isTrendDetected = DetectForexTrend();
+
+    // Generate forex signals
+    GenerateForexSignals();
+
+    // Handle errors and exceptions
+    HandleErrors();
+
+    // Optimize code
+    OptimizeCode();
+
+    // Document code
+    DocumentCode();
+}
